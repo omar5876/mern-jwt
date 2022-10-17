@@ -47,9 +47,28 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
     if(!correctPassword) return res.status(400).json({message: 'Wrong Password'})
 
     const token = jwt.sign({id: userFound._id}, SECRET_KEY as string, {expiresIn: '1hr'})
+
+    res.cookie(String(userFound._id), token, {
+        path: '/',
+        expires: new Date(Date.now() + 1000 * 60 * 60),
+        httpOnly: true,
+        sameSite: "lax"
+
+    });
     return res.status(201).json({message: 'Successfully logged in', user: userFound, token});
 }
 
-export const getUser = (req: Request, res: Response, next: NextFunction) => {
-    res.send({itPass: res.locals.user})
+export const getUser = async (req: Request, res: Response, next: NextFunction) => {
+    const userId = res.locals.user.id;
+    let userFound;
+
+    try {
+        userFound = await User.findById(userId, "-password");
+    } catch (error) {
+        console.log(error);
+    }
+
+    if (!userFound) return res.status(404).json({message: 'User not found'})
+
+    res.status(201).json({user: userFound});
 }

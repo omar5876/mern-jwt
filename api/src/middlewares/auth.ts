@@ -5,9 +5,10 @@ dotenv.config();
 const {SECRET_KEY} = process.env;
 
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
-    const headers = req.headers['authorization']
-    const token = headers?.split(" ")[1];
-
+    const cookie = req.headers.cookie
+    const token = cookie?.split('=')[1];
+/*     const headers = req.headers['authorization']
+    const token = headers?.split(" ")[1]; */
 
     if(!token) return res.status(404).json({message: 'There is no token'})
 
