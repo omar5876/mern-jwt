@@ -1,0 +1,11 @@
+.formContainer{
+    min-height: 50vh;
+    max-width: 35vw;
+    min-height: 35vw;
+    padding: auto;
+}
+
+.formContainer > input{
+    width: 60%;
+    margin: 10px auto;
+}
