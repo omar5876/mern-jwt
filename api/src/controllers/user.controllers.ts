@@ -50,7 +50,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 
     res.cookie(String(userFound._id), token, {
         path: '/',
-        expires: new Date(Date.now() + 1000 * 60 * 60),
+        expires: new Date(Date.now() + 1000 * 60),
         httpOnly: true,
         sameSite: "lax"
 
