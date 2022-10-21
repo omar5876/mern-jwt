@@ -3,6 +3,7 @@ import User from '../models/User';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { UserToken } from "../middlewares/auth";
 dotenv.config();
 
 const {SECRET_KEY} = process.env;
@@ -48,6 +49,10 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 
     const token = jwt.sign({id: userFound._id}, SECRET_KEY as string, {expiresIn: '1hr'})
 
+    if(req.cookies[`${userFound._id}`]){
+        req.cookies[`${userFound._id}`]
+    }
+
     res.cookie(String(userFound._id), token, {
         path: '/',
         expires: new Date(Date.now() + 1000 * 60),
@@ -71,4 +76,24 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
     if (!userFound) return res.status(404).json({message: 'User not found'})
 
     res.status(201).json({user: userFound});
+}
+
+export const logout = (req: Request, res: Response, next: NextFunction) => {
+    const cookie = req.headers.cookie;
+    const prevToken = cookie?.split("=").pop();
+  
+    if (!prevToken)
+      return res.status(404).json({ message: "Couldn't find the token" });
+  
+    jwt.verify(prevToken, SECRET_KEY as string, (err, user: UserToken | any) => {
+      if (err) {
+        console.log(err);
+        return res.status(403).json({ message: "Athentication has failed" });
+      }
+  
+      res.clearCookie(`${user?.id}`);
+      req.cookies[`${user?.id}`] = "";
+  
+      return res.status(200).json({message: 'Successfully Logged out'})
+    });
 }

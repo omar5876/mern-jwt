@@ -3,6 +3,8 @@ import axios from 'axios'
 
 axios.defaults.withCredentials = true;
 
+let firstRender = true;
+
 interface User {
   email: string;
   name:  string;
@@ -13,13 +15,25 @@ interface User {
 function Welcome() {
   const [user, setUser] = useState<User>()
   console.log('User =', user)
+
   useEffect(() => {
-    axios.get('http://localhost:4444/user/users', {withCredentials: true})
-    .then(res => {
-      console.log(res)
-      setUser(res.data.user)
-    })
-    .catch(err => console.log(err))
+    if (firstRender) {
+      firstRender = false;
+      axios.get('http://localhost:4444/user/users', {withCredentials: true})
+      .then(res => setUser(res.data.user))
+      .catch(err => console.log(err))
+    }
+    
+    let interval = setInterval(() => {
+
+      axios.get('http://localhost:4444/user/refresh', {withCredentials: true})
+      .then(res => setUser(res.data.user))
+      .catch(err => console.log(err))
+    }, 1000 * 30)
+
+    return () => clearInterval(interval)    
+
+
   }, [])
   return (
     <div>
