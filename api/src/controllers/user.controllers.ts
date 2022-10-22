@@ -50,7 +50,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
     const token = jwt.sign({id: userFound._id}, SECRET_KEY as string, {expiresIn: '1hr'})
 
     if(req.cookies[`${userFound._id}`]){
-        req.cookies[`${userFound._id}`]
+        req.cookies[`${userFound._id}`] = "";
     }
 
     res.cookie(String(userFound._id), token, {
@@ -64,7 +64,8 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 }
 
 export const getUser = async (req: Request, res: Response, next: NextFunction) => {
-    const userId = res.locals.user.id;
+    const userId = res.locals.user;
+    console.log("USER ID = ",userId)
     let userFound;
 
     try {
